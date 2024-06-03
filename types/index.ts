@@ -2,7 +2,8 @@ interface Lecture {
   id: number
   title: string
   description: string
-  date: string
+  date: string,
+  price: number
 }
 
 export interface Teacher {
