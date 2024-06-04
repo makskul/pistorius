@@ -3,7 +3,10 @@ interface Lecture {
   title: string
   description: string
   date: string,
-  price: number
+  startTime: string,
+  endTime: string,
+  price: number,
+  type: string
 }
 
 export interface Teacher {
