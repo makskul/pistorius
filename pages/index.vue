@@ -25,10 +25,7 @@
 </template>
 
 <script setup lang="ts">
-const teachers = [
-  { id: 4, name: 'Брендан Ейх', photo: 'path/to/photo4.jpg', description: 'Мощний дядько, без нього не було б цієї платформи' },
-  { id: 1, name: 'Марко Поло', photo: 'path/to/photo1.jpg', description: 'Вчить як краще мандрувати, та розробляти власні футболки' },
-  { id: 2, name: 'Доктор Стрейндж', photo: 'path/to/photo2.jpg', description: 'Завжди дивний, іноді ми думаємо, що він під чимось' },
-  { id: 3, name: 'Мама Тараса', photo: 'path/to/photo3.jpg', description: 'Виховала найкращого та найвідомішого письменника в Україні, ділиться досвідом на лекціях' }
-];
+import { useLecturesStore } from '../stores/Lectures'
+
+const teachers = useLecturesStore().teachers
 </script>

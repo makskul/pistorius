@@ -1,8 +1,8 @@
 <template>
   <Title title="Доступні Лекції"/>
-  <PriceFilter />
-  <SidebarNew />
-  <cards-list />
+  <PriceFilter key="add-cards-filter"/>
+  <SidebarNew key="add-cards-sidebar"/>
+  <cards-list key="add-cards-list"/>
 </template>
 
 <script setup lang="ts">

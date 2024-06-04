@@ -1,13 +1,13 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-1 gap-4">
-      <items-card v-for="(item, index) in currentLectures" :key="index" :item="item" />
+      <items-card v-for="(item) in currentLectures" :key="item.id" :item="item" />
     </div>
     <div class="mt-4 flex items-center">
       <button @click="prevPage" :disabled="currentPage === 1" class="p-2 bg-gray-300">Предыдущая</button>
       <button
         v-for="page in totalPages"
-        :key="page"
+        :key="`page-${page}`"
         class="bg-blue-500 text-white px-4 py-2 mx-1 rounded"
         :class="{ 'bg-blue-700': currentPage === page }"
         @click="goToPage(page)"
@@ -23,15 +23,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import {ref, computed, watch} from 'vue'
 import { useLecturesStore } from "~/stores/Lectures";
+const route = useRoute();
 
 const lecturesStore = useLecturesStore()
 const currentPage = ref(lecturesStore.currentPage)
 const currentLectures = computed(() => lecturesStore.getCurrentPageLectures())
-const totalPages = computed(() => lecturesStore.totalPages)
-const minPrice = computed(() => lecturesStore.getMinPrice())
-const maxPrice = computed(() => lecturesStore.getMaxPrice())
+// const totalPages = computed(() => lecturesStore.totalPages)
+const totalPages = ref(lecturesStore.totalPages)
 
 const prevPage = () => {
   if (currentPage.value > 1) {
@@ -52,4 +52,8 @@ const goToPage = (page: number) => {
     lecturesStore.setCurrentPage(page)
   }
 }
+
+watch(() => route.fullPath, () => {
+  totalPages.value = lecturesStore.totalPages
+})
 </script>

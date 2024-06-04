@@ -55,10 +55,6 @@ export const useLecturesStore = defineStore('lectures', {
       this.currentPage = page
     },
 
-    setItemsPerPage(count: number) {
-      this.itemsPerPage = count
-    },
-
     getCurrentPageLectures(): Teacher[] {
       const start = (this.currentPage - 1) * this.itemsPerPage
       const end = this.currentPage * this.itemsPerPage
@@ -77,11 +73,9 @@ export const useLecturesStore = defineStore('lectures', {
     }
   },
   getters: {
-    totalLecturesCount(state): number {
-      return state.teachers.reduce((total, teacher) => total + teacher.lectures.length, 0)
-    },
+
     totalPages(state): number {
-      return Math.ceil(this.totalLecturesCount / state.itemsPerPage)
+      return Math.ceil(state.teachers.length / state.itemsPerPage)
     }
   }
 })

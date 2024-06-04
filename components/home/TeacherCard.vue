@@ -14,7 +14,3 @@ const props = defineProps({
   }
 })
 </script>
-
-<style scoped>
-/* Add any additional styling here */
-</style>

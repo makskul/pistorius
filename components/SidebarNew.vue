@@ -23,7 +23,8 @@
         </div>
         <p v-if="maxLecturesExceeded" class="text-red-500 text-sm mt-2">Завищен ліміт лекцій, максимум 10.</p>
       </div>
-      <div v-for="(date, index) in teacher.dates" :key="index" class="mb-4 border p-4 rounded">
+
+      <div v-for="(date) in teacher.dates" :key="date" class="mb-4 border p-4 rounded">
         <div class="flex justify-between items-center mb-4">
           <p class="font-semibold">{{ date }}</p>
           <button type="button" @click="removeDate(date)" class="text-red-500 hover:text-red-700">Видалити</button>
@@ -60,10 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useLecturesStore } from '@/stores/Lectures'
-import { format } from 'date-fns'
+import {computed, onMounted, ref, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {useLecturesStore} from '@/stores/Lectures'
+import {format} from 'date-fns'
+import type {Lecture} from '~/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -76,12 +78,10 @@ const teacher = ref({
   lectures: {} as Record<string, { startTime: string, endTime: string, price: number, type: string }>
 })
 
-const isEditMode = computed(() => route.path.startsWith('/edit'))
+const isEditMode = computed(() => route.path.includes('/edit'))
 const dateInput = ref<string>('')
 const date = ref(new Date())
-
 const maxLecturesExceeded = computed(() => teacher.value.dates.length > 10)
-const showDatepicker = ref(false)
 
 const handleDateSelect = (date: string) => {
   if (!teacher.value.dates.includes(date)) {
@@ -93,7 +93,7 @@ const handleDateSelect = (date: string) => {
 }
 
 const addDate = () => {
-  const formatedDate = format(date.value, 'd-M-yyy')
+  const formatedDate = format(date.value, 'dd-MM-yyy')
 
   if (!teacher.value.dates.includes(formatedDate)) {
     teacher.value.dates.push(formatedDate)
@@ -125,13 +125,11 @@ const updateDateInput = () => {
 }
 
 const handleSubmit = () => {
-  console.log(teacher.value);
   if (isEditMode.value) {
     lecturesStore.updateTeacher(teacher.value)
   } else {
     lecturesStore.addTeacher(teacher.value)
   }
-  console.log(lecturesStore.teachers)
   router.push('/lections')
 }
 
@@ -142,9 +140,16 @@ const closeSidebar = () => {
 onMounted(() => {
   if (isEditMode.value) {
     const id = route.params.id as string
-    const existingTeacher = lecturesStore.teachers.find(teacher => teacher.id === Number(id))
+    const existingTeacher: any = lecturesStore.teachers.find(teacher => teacher.id === Number(id))
+
     if (existingTeacher) {
+      const newObj = existingTeacher.lectures.reduce((acc: any, item: Lecture) => {
+        acc[item.date] = item
+        return acc
+      }, {})
+      existingTeacher.lectures = JSON.parse(JSON.stringify(newObj))
       teacher.value = JSON.parse(JSON.stringify(existingTeacher))
+      teacher.value.dates = JSON.parse(JSON.stringify(Object.keys(existingTeacher.lectures)))
       updateDateInput()
     }
   }

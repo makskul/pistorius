@@ -1,10 +1,9 @@
 <template>
   <Title title="Доступні Лекції"/>
-  <PriceFilter />
-  <Sidebar />
-  <cards-list />
+  <PriceFilter key="edit-cards-filter"/>
+  <SidebarNew key="edit-cards-sidebar"/>
+  <cards-list key="edit-cards-list"/>
 </template>
 
 <script setup lang="ts">
-import Sidebar from "~/components/Sidebar.vue";
 </script>
