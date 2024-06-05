@@ -7,11 +7,27 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "eslint --ext .ts,.js,.vue ."
   },
   "dependencies": {
+    "@nuxt/ui": "^2.16.0",
+    "@pinia/nuxt": "^0.5.1",
+    "@types/lodash": "^4.17.4",
+    "date-fns": "^3.6.0",
     "nuxt": "^3.11.2",
+    "pinia": "^2.1.7",
+    "uuid": "^9.0.1",
+    "v-calendar": "^3.1.2",
+    "vee-validate": "^4.12.8",
     "vue": "^3.4.27",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "vue3-datepicker": "^0.4.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@types/node": "^20.13.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5"
   }
 }
