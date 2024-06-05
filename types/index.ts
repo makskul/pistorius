@@ -1,17 +1,18 @@
 export interface Lecture {
-  id: number
+  id: string
   title: string
-  description: string
-  date: string,
-  startTime: string,
-  endTime: string,
-  price: number,
+  date: string
+  startTime: string
+  endTime: string
+  price: number
   type: string
+  sortType: 'asc' | 'desc'
 }
 
 export interface Teacher {
-  id: number
+  id: string
   name: string
   description: string
+  display: boolean
   lectures: Lecture[]
 }

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import type { Teacher } from '~/types'
 
 export const useLecturesStore = defineStore('lectures', {
@@ -29,25 +29,41 @@ export const useLecturesStore = defineStore('lectures', {
     },
 
     updateTeacher(updatedTeacher: Teacher) {
-      const index = this.teachers.findIndex((teacher: Teacher) => teacher.id === updatedTeacher.id)
+      const lectures = Object.values(updatedTeacher.lectures)
+      const concatedLecturesObj = {
+          ...updatedTeacher,
+          lectures: lectures.map(lecture => ({
+          ...lecture
+        }))
+      }
+      const index = this.teachers.findIndex((teacher: Teacher) => teacher.id === concatedLecturesObj.id)
       if (index !== -1) {
-        this.teachers[index] = updatedTeacher
+        this.teachers[index] = concatedLecturesObj
       }
     },
 
-    deleteTeacher(teacherId: number) {
+    deleteTeacher(teacherId: string) {
       this.teachers = this.teachers.filter((teacher: Teacher) => teacher.id !== teacherId)
     },
 
-    sortLecturesByPrice() {
-      this.teachers.forEach((teacher: Teacher) => {
-        teacher.lectures.sort((a, b) => a.price - b.price)
-      })
+    sortLecturesByPrice(id: string) {
+      const index = this.teachers.findIndex((teacher: Teacher) => teacher.id === id)
+      const thisTeacher = this.teachers[index]
+
+      if (thisTeacher.lectures.sortType === 'asc' || !thisTeacher.lectures.sortType) {
+        thisTeacher.lectures.sortType = 'desc'
+        thisTeacher.lectures.sort((a, b) => b.price - a.price)
+        return
+      }
+
+      thisTeacher.lectures.sortType = 'asc'
+      thisTeacher.lectures.sort((a, b) => a.price - b.price)
     },
 
     filterLecturesByPrice(minPrice: number, maxPrice: number) {
       this.teachers.forEach(teacher => {
-        teacher.lectures = teacher.lectures.filter(lecture => lecture.price >= minPrice && lecture.price <= maxPrice)
+        const filterResult = teacher.lectures.filter(lecture => lecture.price >= minPrice && lecture.price <= maxPrice)
+        teacher.display = !!filterResult.length
       })
     },
 
@@ -58,8 +74,14 @@ export const useLecturesStore = defineStore('lectures', {
     getCurrentPageLectures(): Teacher[] {
       const start = (this.currentPage - 1) * this.itemsPerPage
       const end = this.currentPage * this.itemsPerPage
-      const allTeachers = this.teachers.flatMap(teacher => teacher)
-      return allTeachers.slice(start, end)
+      const allTeachers = this.teachers.flatMap((teacher) => {
+          if (teacher.display) {
+            return teacher
+          }
+        }
+      ).filter((element) => element !== undefined)
+
+      return allTeachers.slice(start, end) as Teacher[]
     },
 
     getMinPrice(): number {
@@ -73,7 +95,6 @@ export const useLecturesStore = defineStore('lectures', {
     }
   },
   getters: {
-
     totalPages(state): number {
       return Math.ceil(state.teachers.length / state.itemsPerPage)
     }

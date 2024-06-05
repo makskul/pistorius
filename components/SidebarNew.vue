@@ -1,14 +1,16 @@
 <template>
-  <div class="fixed top-0 right-0 w-1/3 h-full bg-white shadow-lg p-6 overflow-auto z-50">
+  <div class="fixed top-0 left-0 w-1/3 h-full bg-white shadow-lg p-6 overflow-auto z-50">
     <h2 class="text-2xl font-bold mb-4">{{ isEditMode ? 'Редагувати дані' : 'Створити викладача' }}</h2>
     <form @submit.prevent="handleSubmit">
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">Ім'я Фамілія</label>
-        <input v-model="teacher.name" id="name" type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        <UFormGroup label="Ім'я Фамілія" name="fio">
+          <UInput v-model="teacher.name" />
+        </UFormGroup>
       </div>
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="description">Про викладача</label>
-        <textarea v-model="teacher.description" id="description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required></textarea>
+        <UFormGroup label="Про викладача" name="description">
+          <UTextarea v-model="teacher.description" />
+        </UFormGroup>
       </div>
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Дати лекцій</label>
@@ -31,41 +33,45 @@
         </div>
         <div class="flex">
           <div class="mb-2 mr-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Початок</label>
-            <input v-model="teacher.lectures[date].startTime" type="time" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+            <UFormGroup label="Початок" name="startTime">
+              <UInput type="time" v-model="teacher.lectures[date].startTime" />
+            </UFormGroup>
           </div>
           <div class="mb-2 mr-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Кінець</label>
-            <input v-model="teacher.lectures[date].endTime" type="time" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+            <UFormGroup label="Початок" name="endTime">
+              <UInput type="time" v-model="teacher.lectures[date].endTime" />
+            </UFormGroup>
           </div>
           <div class="mb-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Ціна</label>
-            <input v-model="teacher.lectures[date].price" type="number" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+            <UFormGroup label="Ціна" name="price">
+              <UInput v-model="teacher.lectures[date].price" />
+            </UFormGroup>
           </div>
         </div>
         <div class="mb-2">
-          <label class="block text-gray-700 text-sm font-bold mb-2">Тип Лекціі</label>
-          <input v-model="teacher.lectures[date].type" type="text" class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+          <UFormGroup label="Тип лекціі" name="type">
+            <USelect v-model="teacher.lectures[date].type" :options="lecturesTypes" />
+          </UFormGroup>
         </div>
       </div>
-      <div class="flex items-center justify-between">
-        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <br/>
+      <div class="flex items-center justify-between mt-2">
+        <UButton type="submit">
           {{ isEditMode ? 'Зберегти' : 'Створити' }}
-        </button>
-        <button type="button" @click="closeSidebar" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Закрити
-        </button>
+        </UButton>
+        <UButton color="green" variant="outline" @click="closeSidebar">Закрити</UButton>
       </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import {useLecturesStore} from '@/stores/Lectures'
-import {format} from 'date-fns'
-import type {Lecture} from '~/types'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useLecturesStore } from '@/stores/Lectures'
+import { format } from 'date-fns'
+import type { Lecture } from '~/types'
+import { lecturesTypes } from "~/mock";
 
 const route = useRoute()
 const router = useRouter()
@@ -83,19 +89,10 @@ const dateInput = ref<string>('')
 const date = ref(new Date())
 const maxLecturesExceeded = computed(() => teacher.value.dates.length > 10)
 
-const handleDateSelect = (date: string) => {
-  if (!teacher.value.dates.includes(date)) {
-    if (teacher.value.dates.length < 10) {
-      addDate(date)
-    }
-    updateDateInput()
-  }
-}
-
 const addDate = () => {
   const formatedDate = format(date.value, 'dd-MM-yyy')
 
-  if (!teacher.value.dates.includes(formatedDate)) {
+  if (!teacher.value.dates.includes(formatedDate) && teacher.value.dates.length < 10) {
     teacher.value.dates.push(formatedDate)
     teacher.value.lectures[formatedDate] = { date: formatedDate, startTime: '', endTime: '', price: 0, type: '' }
     updateDateInput()
@@ -124,23 +121,23 @@ const updateDateInput = () => {
   dateInput.value = teacher.value.dates.join(', ')
 }
 
+const closeSidebar = () => {
+  router.push('/lections')
+}
+
 const handleSubmit = () => {
   if (isEditMode.value) {
     lecturesStore.updateTeacher(teacher.value)
   } else {
     lecturesStore.addTeacher(teacher.value)
   }
-  router.push('/lections')
-}
-
-const closeSidebar = () => {
-  router.push('/lections')
+  closeSidebar()
 }
 
 onMounted(() => {
   if (isEditMode.value) {
     const id = route.params.id as string
-    const existingTeacher: any = lecturesStore.teachers.find(teacher => teacher.id === Number(id))
+    const existingTeacher: any = lecturesStore.teachers.find(teacher => teacher.id === id)
 
     if (existingTeacher) {
       const newObj = existingTeacher.lectures.reduce((acc: any, item: Lecture) => {
